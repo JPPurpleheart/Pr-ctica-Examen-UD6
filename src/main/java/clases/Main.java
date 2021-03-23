@@ -3,7 +3,16 @@
  */
 package clases;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     
@@ -16,6 +25,15 @@ public class Main {
      * @param datos formato "nick>dd/MM/yyyy>3.2
      */
     public static void alta (List<UserProfile> lista, String datos) {
+    	//Crea un objeto UserProfile a partir de los datos
+    	String[] campos = datos.split(">");
+    	String nick = campos[0];
+    	//LocalDate regDate = UserProfile.toString(campos[1]);
+    	LocalDate regDate = (LocalDate) LocalDate.parse(campos[1],DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    	Float rating = Float.parseFloat(campos[2]);
+    	UserProfile usuario = new UserProfile(nick, regDate, rating);
+    	//Introduce un Usuario en la lista
+    	lista.add(usuario);
     }
     
     /**
@@ -25,7 +43,7 @@ public class Main {
      * @return true si se elimino, false en caso contrario
      */
     public static boolean baja (List<UserProfile> lista, UserProfile elemento) {
-    	return false;
+    	return lista.remove(elemento);
     }
     
     /**
@@ -35,8 +53,18 @@ public class Main {
      * Por cada elemento de la lista escribe una linea en el fichero
      * con el mismo formato que utiliza el alta de lista
      * @param lista
+     * @throws IOException 
      */
-    public static void salvarDatos(List<UserProfile> lista) {
+    public static void salvarDatos(List<UserProfile> lista) throws IOException {
+    	System.out.println("Introduzca nombre del fichero");
+    	Scanner teclado = new Scanner(System.in);
+    	String nombref = teclado.nextLine();
+    	teclado.close();
+    	FileWriter fichero = new FileWriter(nombref);
+    	for(UserProfile userProfile: lista) {
+    		fichero.write(userProfile.getFileFormat());
+    	}
+    	fichero.close();
     }
     
     /**
@@ -47,16 +75,30 @@ public class Main {
      * Por cada elemento de la lista hay una linea en el fichero
      * con el mismo formato que utiliza el alta de lista
      * @param lista
+     * @throws IOException 
      */
-    public static void cargarDatos(List<UserProfile> lista) {
+    public static void cargarDatos(List<UserProfile> lista) throws IOException {
+    	System.out.println("Introduzca nombre del fichero");
+    	Scanner teclado = new Scanner(System.in);
+    	String nombref = teclado.nextLine();
+    	teclado.close();
+    	File fichero = new File(nombref);
+    	Scanner fileReader = new Scanner(fichero);
+    	while(fileReader.hasNextLine()) {
+    		String linea = fileReader.nextLine();
+    		alta(lista, linea);
+    	}
+    	fileReader.close();
     }
     
     /**
      * Metodo que realiza el ordenamiento natural de una lista que se pasa
      * como parametro
+     * Ordena primero por nick y en caso contrario por fecha
      * @param lista
      */
     public static void ordena(List<UserProfile> lista) {
+    	Collections.sort(lista);
     }
     
     /**
@@ -65,6 +107,7 @@ public class Main {
      * @param lista
      */
     public static void ordenaRating(List<UserProfile> lista) {
+    	Collections.sort(lista,new UserProfile());
     }
     
     
